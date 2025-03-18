@@ -1,21 +1,29 @@
-let slider;
-let brydningsindeksSlider;
+
+let v1; //indskudsvinkel v1
+let v2; //udskudsvinkel v2
+let b1; //brydningsindeks af indskudsmateriale
+let b2; //brydningsindeks af udskudtdsmateriale
+let len = 200; //Længden af synlig lys
+let tykkelse = 4; //Tykkelse af synlig lys
+
 function setup(){
     createCanvas(windowWidth, windowHeight);
     background(186, 183, 175);
     angleMode(DEGREES);
 
-    brydningsindeksSlider = createSlider(10, 3, 0);
-    text("adaaa", 10, 1000);
-    brydningsindeksSlider.position(width*4/6, height*7/8);
-    brydningsindeksSlider.size(200);
+    indskudsvinkel = createSlider(-90, 90, -45);
+    indskudsvinkel.position(width/4-200, 20);
+    indskudsvinkel.size(200);
 
-    slider = createSlider(-90, 90, 0);
-    slider.position(10, 20);
-    slider.size(200);
+    indskudtBrydningsindeks = createSlider(0, 2, 1, 0.1);
+    indskudtBrydningsindeks.position(10, 60);
+    indskudtBrydningsindeks.size(200);
+
+    udskudtBrydningsindeks = createSlider(0, 2, 1, 0.1);
+    udskudtBrydningsindeks.position(width/2+width/30, 60);
+    udskudtBrydningsindeks.size(200);
 
 }
-let c = 299792458; //Lysets hastighed
 
 function indskudslys(v1){
     //omregning af indskudsvinkel v1 til koordinat
@@ -28,35 +36,38 @@ function indskudslys(v1){
 
     push();
         stroke("red");
-        strokeWeight(2);
+        strokeWeight(tykkelse);
         //(x_center+deltaX, y_center+deltaY, x_center, y_center) - startpunktet ændres
-        line((windowWidth/2)+deltaX, (windowHeight/2)+deltaY, windowWidth/2, windowHeight/2);
+        line((width/2)+deltaX, (height/2)+deltaY, width/2, height/2);
     pop();
 }
-let v1; //indskudsvinkel v1
-let b1 = 1; //brydningsindeks luft
-let b2 = 1.5; //brydningsindeks luft
-let len = 150; 
+
 function udskudslys(v1){
     //beregning af udskudsvinkel v2, via Snells-lov
     v2 = asin(sin(v1)*b1/b2);
     
     //omregning af udskudsvinkel v2 til koordinat
-    let deltaY = sin(v2)*(len);
+    let deltaY = -sin(v2)*(len);
     let deltaX = cos(v2)*(len);
 
 
     push();
     stroke("darkred")
-    strokeWeight(2);
-    line(windowWidth/2, windowHeight/2, windowWidth/2+deltaX, windowHeight/2+deltaY);
+    strokeWeight(tykkelse);
+    line(width/2, height/2, width/2+deltaX, height/2+deltaY);
     pop();
 }
 
 function draw(){
     background(186, 183, 175);
-    v1 = slider.value();
-    
+    v1 = indskudsvinkel.value();
+    text("Indskudsvinkel = "+v1, width/8, 20)
+
+    b1 = indskudtBrydningsindeks.value()
+    text("Brydningsindeks = "+b1, width/8, 60)
+
+    b2 = udskudtBrydningsindeks.value()
+    text("Brydningsindeks = "+b2, width/8+width/2, 60)
     indskudslys(v1);
     udskudslys(v1);
 
