@@ -1,80 +1,159 @@
+let v1; // indskudsvinkel v1
+let v2; // udskudsvinkel v2
+let b1; // brydningsindeks af indskudsmateriale
+let b2; // brydningsindeks af udskudsmateriale
+let len = 200; // Længden af synligt lys
+let tykkelse = 4; // Tykkelsen af lyset
 
-let v1; //indskudsvinkel v1
-let v2; //udskudsvinkel v2
-let b1; //brydningsindeks af indskudsmateriale
-let b2; //brydningsindeks af udskudtdsmateriale
-let len = 200; //Længden af synlig lys
-let tykkelse = 4; //Tykkelse af synlig lys
+// Kendte brydningsindekser for materialer
+let LUFT = 1;
+let VAND = 1.33;
+let GLAS = 1.5;
+let DIAMAND = 2.4;
 
-function setup(){
-    createCanvas(windowWidth, windowHeight);
-    background(186, 183, 175);
-    angleMode(DEGREES);
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  angleMode(DEGREES);
 
-    indskudsvinkel = createSlider(-90, 90, -45);
-    indskudsvinkel.position(width/4-200, 20);
-    indskudsvinkel.size(200);
+  // Slider for indskudsvinkel
+  indskudsvinkel = createSlider(-90, 90, -45);
+  indskudsvinkel.position(width / 8 - indskudsvinkel.width, 50);
+  indskudsvinkel.size(width / 6);
 
-    indskudtBrydningsindeks = createSlider(0, 2, 1, 0.1);
-    indskudtBrydningsindeks.position(10, 60);
-    indskudtBrydningsindeks.size(200);
+  // Slider for indskudt brydningsindeks
+  indskudtBrydningsindeks = createSlider(1, 2.5, 1, 0.01);
+  indskudtBrydningsindeks.position(width / 8 - width / 15, height * 7 / 8);
+  indskudtBrydningsindeks.size(width / 4);
 
-    udskudtBrydningsindeks = createSlider(0, 2, 1, 0.1);
-    udskudtBrydningsindeks.position(width/2+width/30, 60);
-    udskudtBrydningsindeks.size(200);
-
+  // Slider for udskudt brydningsindeks
+  udskudtBrydningsindeks = createSlider(1, 2.5, 1, 0.01);
+  udskudtBrydningsindeks.position(width * 5 / 8 - width / 15, height * 7 / 8);
+  udskudtBrydningsindeks.size(width / 4);
 }
 
-function indskudslys(v1){
-    //omregning af indskudsvinkel v1 til koordinat
+function indskudslys(v1) {
+  // Omregning af indskudsvinkel (v1) til koordinater
 
-    //hvor hypotunsen/længden Li=len
-    //deltaY = Li*Sin(theta)
-    let deltaY = sin(v1)*(len);
-    //deltaX = Li*cos(theta)
-    let deltaX = -cos(v1)*(len);
+  let deltaY = sin(v1) * len;
+  let deltaX = -cos(v1) * len;
 
-    push();
-        stroke("red");
-        strokeWeight(tykkelse);
-        //(x_center+deltaX, y_center+deltaY, x_center, y_center) - startpunktet ændres
-        line((width/2)+deltaX, (height/2)+deltaY, width/2, height/2);
-    pop();
-}
-
-function udskudslys(v1){
-    //beregning af udskudsvinkel v2, via Snells-lov
-    v2 = asin(sin(v1)*b1/b2);
-    
-    //omregning af udskudsvinkel v2 til koordinat
-    let deltaY = -sin(v2)*(len);
-    let deltaX = cos(v2)*(len);
-
-
-    push();
-    stroke("darkred")
+  push();
+    stroke("red");
     strokeWeight(tykkelse);
-    line(width/2, height/2, width/2+deltaX, height/2+deltaY);
-    pop();
+    // Tegn linje fra center til bregenet position
+    line(width / 2 + deltaX, height / 2 + deltaY, width / 2, height / 2);
+  pop();
 }
 
-function draw(){
-    background(186, 183, 175);
-    v1 = indskudsvinkel.value();
-    text("Indskudsvinkel = "+v1, width/8, 20)
+function udskudslys(v1) {
 
-    b1 = indskudtBrydningsindeks.value()
-    text("Brydningsindeks = "+b1, width/8, 60)
+  b1 = indskudtBrydningsindeks.value();
+  b2 = udskudtBrydningsindeks.value();
+  // Beregn udskudsvinklen vha. Snells lov
+  v2 = asin(sin(v1) * b1 / b2);
 
-    b2 = udskudtBrydningsindeks.value()
-    text("Brydningsindeks = "+b2, width/8+width/2, 60)
-    indskudslys(v1);
-    udskudslys(v1);
+  let deltaY = -sin(v2) * len;
+  let deltaX = cos(v2) * len;
 
-    //Barrier
+  push();
+    stroke("darkred");
+    strokeWeight(tykkelse);
+    // Tegn linje fra center mod udskudt lys
+    line(width / 2, height / 2, width / 2 + deltaX, height / 2 + deltaY);
+  pop();
+}
+
+
+
+//  UI for indskudtbrydningsindeks
+function indskudtbrydningsindeksUI() {
+
+  b1 = indskudtBrydningsindeks.value();
+
+  let sliderX = width / 8 - width / 15;
+  let sliderY = height * 7 / 8;
+  let sliderW = indskudtBrydningsindeks.width;
+
+  // Vis  brydningsindeks 
+  textAlign(LEFT, BOTTOM);
+  text("Brydningsindeks = " + b1, sliderX+100, sliderY-20);
+
+  // Array med materialer og deres brydningsindekser
+  let materials = [
+    { navn: "LUFT", brydningsindeks: LUFT },
+    { navn: "VAND", brydningsindeks: VAND },
+    { navn: "GLAS", brydningsindeks: GLAS },
+    { navn: "DIAMAND", brydningsindeks: DIAMAND }
+  ];
+
+  // Lavet en foor loop så jeg ikke skal gøre det manuelt hele tiden
+  for (let i = 0; i < materials.length; i++) {
+    let xPos = map(materials[i].brydningsindeks, 1, 2.5, sliderX, sliderX + sliderW)+10;
     push();
+        stroke(0);
+        line(xPos, sliderY - 10, xPos, sliderY + 20);
+        noStroke();
+        textAlign(CENTER, TOP);
+        textSize(15)
+        text(materials[i].navn, xPos, sliderY + 20);
+    pop();
+  }
+}
+
+
+function udskudtbrydningsindeksUI() {
+
+  b2 = udskudtBrydningsindeks.value();
+
+  let sliderX = width * 5 / 8 - width / 15;
+  let sliderY = height * 7 / 8;
+  let sliderW = udskudtBrydningsindeks.width;
+
+
+  textAlign(LEFT, BOTTOM);
+  text("Brydningsindeks = " + b2, sliderX+100, sliderY-20);
+
+  let materials = [
+    { navn: "LUFT", brydningsindeks: LUFT },
+    { navn: "VAND", brydningsindeks: VAND },
+    { navn: "GLAS", brydningsindeks: GLAS },
+    { navn: "DIAMAND", brydningsindeks: DIAMAND }
+  ];
+
+
+  for (let i = 0; i < materials.length; i++) {
+    let xPos = map(materials[i].brydningsindeks, 1, 2.5, sliderX, sliderX + sliderW)+10;
+    push();
+        stroke(0);
+        line(xPos, sliderY - 10, xPos, sliderY + 20);
+        noStroke();
+        textAlign(CENTER, TOP);
+        textSize(15)
+        text(materials[i].navn, xPos, sliderY + 20);
+    pop();
+  }
+}
+
+
+
+function draw() {
+  background(186, 183, 175);
+  textSize(25);
+  textAlign(CENTER, BOTTOM);
+  v1 = indskudsvinkel.value();
+  text("Indskudsvinkel = " + v1 + "°", width / 8, 50);
+
+
+  indskudtbrydningsindeksUI();
+  udskudtbrydningsindeksUI();
+
+  indskudslys(v1);
+  udskudslys(v1);
+
+
+  push();
     stroke("black");
     strokeWeight(4);
-    line(windowWidth/2, 0, windowWidth/2, windowHeight);
-    pop();  
+    line(windowWidth / 2, 0, windowWidth / 2, windowHeight);
+  pop();
 }
